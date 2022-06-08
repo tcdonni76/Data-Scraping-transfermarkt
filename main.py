@@ -1,8 +1,14 @@
-# HTML parser
-import numpy as np
-import re
 import requests
 from bs4 import BeautifulSoup as soup
+
+
+def clean_expenditure(expenditure):
+    arr = re.split("([0-9]+[.]?[0-9]+)", expenditure)
+    if len(arr) > 1:
+        val = float(arr[1])
+        if arr[2].strip() != 'm':
+            val = val / 1000
+        return val
 
 names = {}
 for year in range(2021, 1992, -1):
@@ -24,16 +30,15 @@ for year in range(2021, 1992, -1):
     for name in pl_names:
         # Checks that it is a club and is not the image of the badge
         if name.a and name.text != "" and name.text:
+            expenditure = clean_expenditure(money_spent[order].text)
             # If already have the team
             if name.text not in names.keys():
-                names[name.text] = [money_spent[order].text]
+                names[name.text] = [expenditure]
 
             # If do not already have the team
             else:
-                names[name.text].append(money_spent[order].text)
+                names[name.text].append(expenditure)
             order = order + 1
 
 
-
-    print(names)
 
